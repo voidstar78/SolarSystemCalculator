@@ -1,0 +1,224 @@
+
+Solar System Calculator (SSC)
+
+Steve Lewis - May 2021
+
+BACKGROND
+=========
+SSC is a program to calculate the distance one should depict planets, in order
+to scale them to the same ratio as they are in their real distance from the Sun.
+
+This program runs in the Online C compiler, available at:
+https://www.onlinegdb.com/online_c_compiler
+
+I did a project with my daughter to paint the planets along our fence.  As a casual art, 
+one could just draw the planets anywhere.  But it is more authentic to draw each planet 
+in the same ratio as they really are, to appreciate that massive distance between them.
+
+What inspired me was from in my hometown of Gainesville, Florida, the local 
+astronomy club had erected such a scale model along its NW 8th Avenue.  This scale
+model is along an uninterrupted span of nearly 1 mile (5280 ft or 1609.344 meters). 
+For information about the Gainesville model, see:  https://www.alachuaastronomyclub.org/solarwalk.html
+
+
+There are various online solution for calculating these scaled distances.  
+some examples are:
+https://www.jpl.nasa.gov/edu/teach/activity/create-a-solar-system-scale-model-with-spreadsheets/
+https://www.exploratorium.edu/ronh/solar_system/
+https://spacefem.com/eris/calculator.php?scale=1&based=Sun
+
+
+To be even more authentic, a model should also consider the diameter of each of the
+planets themselves (and scaled relative to the diameter of the Sun, which is by
+far much more massive than all of the planets combined).  But in this regard, it is
+reasonable for an artist to take certain liberties, since at small scales it quickly
+becomes the case that the planets become too small to be seen at all.   
+
+For example, in our fence project, the fence was about 50 feet in length.  At this 
+scale, nearly all the inner planets become too small to be visible by cars passing 
+on the street.   So while the distances there authentic, we had to enlarge the planets
+themselves for the sake of being visible (to be more than just grains of sand).
+
+Another aspect was that for the scale we did end up choosing, we could only fit up
+to Saturn along our 50 foot of fence available.  We considered asking our neighbor
+if we could extend the model along their fence (to include Uranus and Neptune).  But 
+as it turned out, before we had an opportunity to do so, a storm came and damaged 
+the fence and we had to replace it entirely with a new fence (and then we had new 
+neighbors shortly thereafter, and things ended up that so far we never resurrected 
+this model along the street).  The point being that if you only have a finite space 
+to depict a solar system, the scale you use may vary depending on how many planets 
+you want to depict (such as just a few of the the inner planets).
+
+
+USAGE DETAILS
+=============
+The SSC program is arranged such that it asks these three questions, each of which
+also has a default if you just press ENTER:
+
+- what is the "work distance" (in feet)
+
+- what "distance type" (or "category of distances") do you want in the report?
+
+- which first N planets do you want to include in the model?
+
+Further details of the inputs is described as follows:
+
+Work Distance
+-------------
+This is the distance of your "fence" or "wall" onto which you want to depict
+the model of the solar system.  The program is flexible in that this distance
+can be quite small (0.001 ft) or very large (up to roughly 100,000x larger
+than the actual dimater of the solar system itself).  In otherwords, you can 
+both "shrink" or "expand" the model relative to the actual size of the solar
+system.   These limits are relevant, because they are due to two sets of limitations.
+The first limitation is the limit of the computer itself to represent these
+very-small or very-large numbers (specifically that we are using a FLOAT type,
+not yet even DOUBLE-PRECISION).  The second limitation is more artificial, being
+due to wanting to keep the OUTPUT of the program to a specific "standard" format.
+If the numbers become too small, the output-format doesn't have enough resolution
+and you just end up seeing "0" distance.  If the numbers become too large, the
+output-format is forced to use a larger amount of space on the screen (e.g. 6-digits
+instead of the normal 4-digits).  It is subjective on how much confusion such
+results cause.  For instance, if one wanted to fit these results onto a printed
+"invoice" that had boxes, it may be necessary to ensure the results did not "overflow"
+that box itself.
+
+This is a very important software-design point.  While the computer may be
+technically capable of a much wider range of calculation, it may be prudent to
+reduce that capability to accomodate aspects of how your program interacts with
+the human operator.  Another reason for doing so is to avoid issues related to 
+data-overflow, by avoiding situations where the operator requests a calculation
+that is larger than the numeric representation can handle.  It's another case of
+"just because you can do it, maybe you shouldn't do it." in regards to allowing
+the full extent of the computational capability of the system.  Moderate that
+potential down to the more meaningful limits of the visual/reported outputs.
+
+Specifically, the SSC has these thresholds:
+
+Work Distance...           Resulting units used for Planet-Scale report...
+BELOW 0.001                (not supported, displayed results become 0, even though the FLOAT type technically can support smaller range)
+BELOW 9ft				           millimeters (mm)
+BETWEEN 9-9999ft           feet inch  (' and ")
+ABOVE 10000ft		           miles (mi)
+ABOVE 5000000ft            "Earth-diameter" (ed)
+ABOVE 40000000000ft        AU (astronomical unit)
+ABOVE 400000000000000ft    (not supported, considered as invalid even though the FLOAT type technically supports larger range)
+
+NOTE: This SSC does not get involved with the DIAMETER of any specific body.  The
+distance are "from the Sun (surface)" and are without regard to whichever diameter you 
+choose the Sun to be.  In our case, the Sun was simply at the "edge" of the fence.
+
+
+Distance Type (to Report)
+-------------------------
+When modeling the solar system, it is a system that is in constant motion and 
+the orbits are not actual "perfect" circles.  So to speak of "distance from the Sun"
+it becomes subjective as to what distance you really mean.  Specifically, do you
+mean "nearest distance", "farthest distance", or just the "average distance" along
+the orbit.
+
+The SSC accounts for this, by allowing the user to choose which "type" of distance
+that is of interest to them.  And it is a "mask" field that means it can be any
+combination of these types.  The types are "1" (N), "2" (F), "4" (A), but to select
+any type just ADD their corresponding number.   Examples:
+
+1+2   = 3 (N and F)
+1+  4 = 5 (N and A)
+  2+4 = 6 (F and A)
+1+2+4 = 7 (N and F and A)
+
+There is an input limitation, where if you designate the TYPE by using LETTERS (N, F, A),
+only one can be chosen at a time.  Whereas if you specify the TYPE by using a NUMBER (1-7),
+you can select multiple distance types to be reported at the same time.
+
+The computation is not that intense, so there is typically no reason to select anything
+besides "7" (all of them).  But this ended up being an interesting way to show how 
+multiple options could be handled.  Or as a useful aspect, in a "final report" one may
+want to focus on specific values of interest, and "declutter" any other type of distance.
+
+Note that in addition to the calculated scaled-distance-from-the-Sun result, this 
+SSC also includes additional data with each planet: the actual distance in mKM (millions
+of KM) and mMi (millions of miles), as well as "AU" (astronomical units).  When drawing
+the scale model, it may be of interest to include these "actuals" in those drawings.  And
+so that information is available, just in case.
+
+NOTE: If you include Pluto in the calculations, you will see how "odd" of a planet it is
+when you see it's NEAREST vs FARTHEST relationship (as it has a much larger span than
+the others).
+
+N Planets
+---------
+From the perspective of this SSC, there are "8" official planets in our solar system.
+Since Pluto's initial discovery around 1930, many "planetoid" dwarf-planet objects have
+been identified at this "wild" region past Neptune.  That siad, the Pluto data is 
+included for those who are interested in it. 
+
+When preparing a scale model, you may only want to include the "inner planets" (typically
+up to Mars), or may not be able to fit the farthest planets (Saturn, Uranus, and Neptune)
+for practical reasons (such as if being inside a classroom).  This decision is important
+since it sets the "largest value" scale of your model (that being the FARTHEST value
+of the designated "Nth" planet).   This value is your "100%" reference, the ending "edge"
+of your model, and becomes the basis to which all the "real distance" data is scale to.
+
+NOTE: SSC has no consideration on the moons around each planet.  This would be an interesting
+future expansion, along with the major asteroid bodies.
+
+
+Thank You
+---------
+Thank You for your interest in this program and overall topic.  In my astronomy work,
+I am often "looking past the solar system" to explore things that are "really far"
+out there: neighbor stars, exoplanets, nebula, other galaxies.
+
+This project was started as a reference example on the utility of float-point numbers
+within a piece of software (and a question of whether such numbers are vital, or could
+everything ultimately be represented in whole-number integers).  Aside from that
+debate, then it becomes a challenge to address the portability of this solution: not
+every C compiler has actually implemented float-point type support for all of their
+target systems.   
+
+An interesting footnote here is that Bill Gates original BASIC did support up to 9-digit
+precision floating-point numbers, with the work of MONTE DAVIDOFF who wrote the
+MATH PACKAGE.  Performing math functions in a digital computer becomes a very difficult
+technical challenge, as math is fundamentally continuous while the nature of digital
+computers is fundamentally bound by discretes (i.e. can achieve extremely high resolutions,
+but never quite continuous).  So while the first home/office PC (Commodore PET) could do
+some scientific computing (financial compound interest and physics equations), it was
+"software emulated" and extremely slow.  It took another 5-10 years before things like
+the 8087 math-coprocessor implemented these capabilities more natively into hardware,
+which we now very much take for granted.
+
+
+
+Example Output (using Default inputs)
+==============
+
+FIRST 8 PLANETS SCALED TO 50.00 FT...
+         NEAREST   FARTHEST  AVERAGE   
+Mercury  000' 006" 000' 009" 000' 007"       <-- This is 6", 9", 7" respectively (not .006, .009, etc.)
+ mKM/mMi  0046/0029 0070/0043 0057/0035      <-- This is just a reference to the static data, not a calculation
+ AU       00000.307 00000.466 00000.387      <-- This is just a reference to the static data, not a calculation
+Venus    001' 001" 001' 002" 001' 002" 
+ mKM/mMi  0107/0066 0109/0068 0108/0067 
+ AU       00000.718 00000.728 00000.722 
+Earth    001' 007" 001' 007" 001' 007" 
+ mKM/mMi  0147/0091 0152/0094 0150/0093 
+ AU       00000.980 00001.010 00001.000 
+Mars     002' 002" 002' 008" 002' 006" 
+ mKM/mMi  0205/0127 0249/0155 0228/0142 
+ AU       00001.380 00001.660 00001.520 
+Jupiter  008' 001" 008' 011" 008' 006" 
+ mKM/mMi  0741/0460 0817/0508 0779/0484 
+ AU       00004.950 00005.460 00005.200 
+Saturn   014' 009" 016' 006" 015' 008"       <-- This is 14 FEET and 9 INCHES,   16ft 6inches,  15ft 8inches.... "from the Sun" (the beginning edge of your model)
+ mKM/mMi  1350/0839 1510/0938 1430/0889 
+ AU       00009.050 00010.120 00009.580 
+Uranus   030' 002" 032' 010" 031' 007" 
+ mKM/mMi  2750/1710 3000/1860 2880/1790 
+ AU       00018.400 00020.100 00019.200 
+Neptune  048' 011" 050' 000" 049' 005"       <-- The FARTHEST distance of your Nth planet should match your original work_distance_ft (50ft in this case)
+ mKM/mMi  4450/2770 4550/2830 4500/2800 
+ AU       00029.800 00030.400 00030.100 
+ 
+ 
+ 
