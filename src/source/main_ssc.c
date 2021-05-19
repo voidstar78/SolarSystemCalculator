@@ -52,40 +52,42 @@ Pluto        4440  2760  29.70
 SAMPLE OUTPUT:
 					 
 1234567890123456789012345678901234567890
-         NEAREST   FARTHEST  AVERAGE   
-Mercury  006'003"  009'004"  007'007"  
- mKM/mMi  0046/0029 0070/0043 0057/0035 
- AU       00000.307 00000.466 00000.387 
-Venus    014'004"  014'009"  014'007"  
- mKM/mMi  0107/0066 0109/0068 0108/0067 
- AU       00000.718 00000.728 00000.722 
-Earth    019'009"  020'005"  020'003"  
- mKM/mMi  0147/0091 0152/0094 0150/0093 
- AU       00000.980 00001.010 00001.000 
-Mars     027'008"  033'009"  030'011"  
- mKM/mMi  0205/0127 0249/0155 0228/0142 
- AU       00001.380 00001.660 00001.520 
-Jupiter  100'002"  110'008"  105'005"  
- mKM/mMi  0741/0460 0817/0508 0779/0484 
- AU       00004.950 00005.460 00005.200 
-Saturn   182'009"  204'004"  193'008"  
- mKM/mMi  1350/0839 1510/0938 1430/0889 
- AU       00009.050 00010.120 00009.580 
-Uranus   372'006"  405'002"  389'011"  
- mKM/mMi  2750/1710 3000/1860 2880/1790 
- AU       00018.400 00020.100 00019.200 
-Neptune  603'005"  616'006"  610'000"  
- mKM/mMi  4450/2770 4450/2830 4500/2800 
- AU       00029.800 00030.400 00030.100 
-Pluto    601'003"  1000'000"  799'006"  
- mKM/mMi  4440/2760 7380/4590 5910/3670 
- AU       00029.700 00049.300 00039.500 					 
+        NEAREST   FARTHEST  AVERAGE   
+Mercury 006'003"  009'004"  007'007"  
+ mKM/mMi 0046/0029 0070/0043 0057/0035 
+ AU      00000.307 00000.466 00000.387 
+Venus   014'004"  014'009"  014'007"  
+ mKM/mMi 0107/0066 0109/0068 0108/0067 
+ AU      00000.718 00000.728 00000.722 
+Earth   019'009"  020'005"  020'003"  
+ mKM/mMi 0147/0091 0152/0094 0150/0093 
+ AU      00000.980 00001.010 00001.000 
+Mars    027'008"  033'009"  030'011"  
+ mKM/mMi 0205/0127 0249/0155 0228/0142 
+ AU      00001.380 00001.660 00001.520 
+Jupiter 100'002"  110'008"  105'005"  
+ mKM/mMi 0741/0460 0817/0508 0779/0484 
+ AU      00004.950 00005.460 00005.200 
+Saturn  182'009"  204'004"  193'008"  
+ mKM/mMi 1350/0839 1510/0938 1430/0889 
+ AU      00009.050 00010.120 00009.580 
+Uranus  372'006"  405'002"  389'011"  
+ mKM/mMi 2750/1710 3000/1860 2880/1790 
+ AU      00018.400 00020.100 00019.200 
+Neptune 603'005"  616'006"  610'000"  
+ mKM/mMi 4450/2770 4450/2830 4500/2800 
+ AU      00029.800 00030.400 00030.100 
+Pluto   601'003"  1000'000"  799'006"  
+ mKM/mMi 4440/2760 7380/4590 5910/3670 
+ AU      00029.700 00049.300 00039.500 					 
 
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define USE_GETS
 
 #define TRUE 1
 #define FALSE 0
@@ -94,15 +96,15 @@ Pluto    601'003"  1000'000"  799'006"
 
 #define NUM_PLANETS 9
 char planet_names[NUM_PLANETS][8] = {
-	{"Mercury\0"},
-	{"Venus\0"},
-	{"Earth\0"},
-	{"Mars\0"},
-	{"Jupiter\0"},
-	{"Saturn\0"},
-	{"Uranus\0"},
-	{"Neptune\0"},
-	{"Pluto\0"}
+	{"mercury\0"},
+	{"venus\0"},
+	{"earth\0"},
+	{"mars\0"},
+	{"jupiter\0"},
+	{"saturn\0"},
+	{"uranus\0"},
+	{"neptune\0"},
+	{"pluto\0"}
 };
 
 #define INDEX_NEAREST  0
@@ -115,41 +117,41 @@ char planet_names[NUM_PLANETS][8] = {
 
 float planet_distance_data[9*3][3] = {
 // MERCURY
-	{46,    29,    0.307},  // NEAREST
-	{70,    43,    0.466},  // FARTHEST
-	{57,    35,    0.387},  // AVERAGE
+	{46.0f,    29.0f,    0.307f},  // NEAREST
+	{70.0f,    43.0f,    0.466f},  // FARTHEST
+	{57.0f,    35.0f,    0.387f},  // AVERAGE
 // VENUS
-  {107,   66,    0.718},
-	{109,   68,    0.728},
-	{108,   67,    0.722},
+  {107.0f,   66.0f,    0.718f},
+	{109.0f,   68.0f,    0.728f},
+	{108.0f,   67.0f,    0.722f},
 // EARTH						 
-  {147,   91,    0.980},
-	{152,   94,    1.010},
-	{150,   93,    1.000},
+  {147.0f,   91.0f,    0.980f},
+	{152.0f,   94.0f,    1.010f},
+	{150.0f,   93.0f,    1.000f},
 // MARS						 
-  {205,   127,   1.380},
-	{249,   155,   1.660},
-	{228,   142,   1.520},
+  {205.0f,   127.0f,   1.380f},
+	{249.0f,   155.0f,   1.660f},
+	{228.0f,   142.0f,   1.520f},
 // JUPITER						 
-  {741,   460,   4.950},
-	{817,   508,   5.460},
-	{779,   484,   5.200},
+  {741.0f,   460.0f,   4.950f},
+	{817.0f,   508.0f,   5.460f},
+	{779.0f,   484.0f,   5.200f},
 // SATURN						 
-  {1350,  839,   9.05},
-	{1510,  938,   10.12},
-	{1430,  889,   9.58},
+  {1350.0f,  839.0f,   9.05f},
+	{1510.0f,  938.0f,   10.12f},
+	{1430.0f,  889.0f,   9.58f},
 // URANUS						 
-  {2750,  1710,  18.4},
-	{3000,  1860,  20.1},
-	{2880,  1790,  19.2},
+  {2750.0f,  1710.0f,  18.4f},
+	{3000.0f,  1860.0f,  20.1f},
+	{2880.0f,  1790.0f,  19.2f},
 // NEPTUNE						 
-  {4450,  2770,  29.8},
-	{4550,  2830,  30.4},
-	{4500,  2800,  30.1},
+  {4450.0f,  2770.0f,  29.8f},
+	{4550.0f,  2830.0f,  30.4f},
+	{4500.0f,  2800.0f,  30.1f},
 // PLUTO
-  {4440,  2760,  29.7},
-	{7380,  4590,  49.3},
-	{5910,  3670,  39.5}
+  {4440.0f,  2760.0f,  29.7f},
+	{7380.0f,  4590.0f,  49.3f},
+	{5910.0f,  3670.0f,  39.5f}
 };		
 
 #define DEFAULT_WORK_DISTANCE_FT    50.0f
@@ -158,7 +160,7 @@ float planet_distance_data[9*3][3] = {
 #define DISTANCE_TYPE_FARTHEST_MASK 2
 #define DISTANCE_TYPE_AVERAGE_MASK  4
 #define DISTANCE_TYPE_MAX           (DISTANCE_TYPE_NEAREST_MASK | DISTANCE_TYPE_FARTHEST_MASK | DISTANCE_TYPE_AVERAGE_MASK)
-#define MAX_SUPPORTED_WORK_DISTANCE 400000000000000.00f
+#define MAX_SUPPORTED_WORK_DISTANCE 4000000000.00f                                    
 
 #define MAX_INPUT_BUFFER_SIZE 100
 void main()
@@ -171,7 +173,8 @@ void main()
 	
 	float distance_percentage;
 	float distance_proportion_ft;
-	unsigned long long distance_ft;     // 0 to 9223372036854775807ft
+	//unsigned long long distance_ft;     // 0 to 7FFFFFFFFFFFFFFF == 9223372036854775807ft
+	unsigned long distance_ft;            // 4294967295
 	unsigned char distance_inch;  // 0 to 12
 		
 	unsigned char n;	
@@ -190,14 +193,15 @@ void main()
 	// MIN/MAX OF FLOAT == 1.175494351 E - 38	3.402823466 E + 38
 	                       
 	//work_distance_ft = 400000000000000.00f;  // threshold of ft ich to AU
-	//work_distance_ft = 40000000000.0f;  // threshold of ft ich to EARTH-DIAMETER
+	//work_distance_ft = 40000000000.0f;  // threshold of ft ich to EARTH-DIAMETER	                     
 	//work_distance_ft = 5000000.0f;  // threshold of ft ich to EARTH-DIAMETER
 	//work_distance_ft = 10000;  // threshold of ft ich to miles
 	//work_distance_ft = 41804000;  // Diameter of Earth in FT
 	//work_distance_ft = 14683680000000;  // Sun to Neptune in FT (typical)
+	
 #ifdef SSC_TEST_MODE
 
-	work_distance_ft = 1000.0f;
+	work_distance_ft = DEFAULT_WORK_DISTANCE_FT;  //< Should be DEFAULT_WORK_DISTANCE_FT ?
 	distance_type = 7;
 	number_of_planets_to_model = 8;
 	
@@ -212,14 +216,18 @@ void main()
 	input_str[0] = '\0';  //< Make the input_str BLANK by default
 	while (TRUE)
 	{
-	  printf("Work distance (ft) [%3.2f]: ", DEFAULT_WORK_DISTANCE_FT);
+	  printf("work distance (ft) [%3.2f]: ", DEFAULT_WORK_DISTANCE_FT);
+#ifdef USE_GETS
+		gets(input_str);
+#else
 		getline(&input_str, &max_buffer_size, stdin);
+#endif
 		if (input_str[0] == 0x0A) input_str[0] = '\0';  // ENTER
 		if (input_str[0] == 0x20) input_str[0] = '\0';  // SPACE
 		n = strlen(input_str);
 		if (n == 0)
 		{
-			printf("DEFAULTED\n");
+			printf("defaulted\n");
 			work_distance_ft = DEFAULT_WORK_DISTANCE_FT;
 		}
 		else
@@ -233,7 +241,7 @@ void main()
 			|| (work_distance_ft > MAX_SUPPORTED_WORK_DISTANCE)  //< While FLOAT can support larger, our table output can't.
 		)
 		{
-			printf("INVALID (%f)\n", work_distance_ft);
+			printf("invalid (%f)\n", work_distance_ft);
 		}
 		else
 		{
@@ -245,14 +253,18 @@ void main()
 	while (TRUE)
 	{
 		distance_type = DISTANCE_TYPE_NONE;
-	  printf("Distance type (1/N Nearest, 2/F Farthest, 4/A Average) [%d]: ", DISTANCE_TYPE_MAX);
+	  printf("distance type (1/n nearest, 2/f farthest, 4/a average) [%d]: ", DISTANCE_TYPE_MAX);
+#ifdef USE_GETS
+		gets(input_str);
+#else
 		getline(&input_str, &max_buffer_size, stdin);
+#endif
 		if (input_str[0] == 0x0A) input_str[0] = '\0';  // ENTER
 		if (input_str[0] == 0x20) input_str[0] = '\0';  // SPACE
 		n = strlen(input_str);
 		if (n == 0)
 		{
-			printf("DEFAULTED\n");
+			printf("defaulted\n");
 			distance_type = DISTANCE_TYPE_MAX;
 		}
 		else
@@ -283,7 +295,7 @@ void main()
 		  || (distance_type > DISTANCE_TYPE_MAX)  // 0000 0111  (3 options)
 		)
 		{
-			printf("INVALID (%d) [MAX %d]\n", distance_type, DISTANCE_TYPE_MAX);
+			printf("invalid (%d) [max %d]\n", distance_type, DISTANCE_TYPE_MAX);
 		}
 		else
 		{
@@ -294,14 +306,18 @@ void main()
 	input_str[0] = '\0';  //< Make the input_str BLANK by default
 	while (TRUE)
 	{
-		printf("Number of planets to model [8]: ");
+		printf("number of planets to model [8]: ");
+#ifdef USE_GETS
+		gets(input_str);
+#else
 		getline(&input_str, &max_buffer_size, stdin);
+#endif
 		if (input_str[0] == 0x0A) input_str[0] = '\0';  // ENTER
 		if (input_str[0] == 0x20) input_str[0] = '\0';  // SPACE
 		n = strlen(input_str);
 		if (n == 0)
 		{
-			printf("DEFAULTED\n");
+			printf("defaulted\n");
 			number_of_planets_to_model = 8;
 		}
 		else	
@@ -316,7 +332,7 @@ void main()
 			|| (number_of_planets_to_model > NUM_PLANETS)
 		)
 		{
-			printf("INVALID (%d)\n", number_of_planets_to_model);			
+			printf("invalid (%d)\n", number_of_planets_to_model);			
 		}
 		else
 		{
@@ -331,7 +347,7 @@ void main()
 	// OUTPUT
 	// ******************************************************************
 	
-	printf("FIRST %d PLANETS SCALED TO %3.2f FT...\n", 
+	printf("first %d planets scaled to %3.2f ft...\n", 
 	  number_of_planets_to_model,
 		work_distance_ft
 	);
@@ -353,10 +369,10 @@ void main()
 			switch (temp_index)
 			{
 				                       //  1234567890
-			case INDEX_NEAREST:  printf("NEAREST   "); break;
-			case INDEX_FARTHEST: printf("FARTHEST  "); break;
-			case INDEX_AVERAGE:  printf("AVERAGE   "); break;
-			default:             printf("ERROR     "); break;
+			case INDEX_NEAREST:  printf("nearest   "); break;
+			case INDEX_FARTHEST: printf("farthest  "); break;
+			case INDEX_AVERAGE:  printf("average   "); break;
+			default:             printf("error     "); break;
 			}			
 		}
 		
@@ -370,7 +386,7 @@ void main()
 		
   for (i = 0; i < number_of_planets_to_model; ++i)
 	{
-		printf("%-9s", planet_names[i]);
+		printf("%-8s", planet_names[i]);
 		
 		working_distance_mask = DISTANCE_TYPE_NEAREST_MASK;	
 		while (TRUE)
@@ -389,8 +405,8 @@ void main()
 					planet_distance_data[max_planet_distance_data_index+INDEX_FARTHEST][INDEX_MIL_MI];
 					
 				distance_proportion_ft = distance_percentage * work_distance_ft;				
-								                    
-				if (work_distance_ft >= 40000000000.00f)
+								                
+				if (work_distance_ft >= MAX_SUPPORTED_WORK_DISTANCE)
 				{    // valid until 400000000000000.00f then need another larger unit
 					// SWITCH TO AU
 					printf("%07.3fau ", distance_proportion_ft / 490806662401.57f);					
@@ -415,7 +431,7 @@ void main()
           // output default of FEET and INCHES			
 				  distance_ft = distance_proportion_ft;
 				  distance_inch = (distance_proportion_ft - (float)distance_ft) * 12;
-				  printf("%03llu' %03d\" ", distance_ft, distance_inch);
+				  printf("%03lu' %03d\" ", distance_ft, distance_inch);
 				}
 			}
 			
@@ -427,7 +443,7 @@ void main()
 		}
 		printf("\n");
 		
-		printf(" mKM/mMi  ");
+		printf(" mkm/mmi ");
 		working_distance_mask = DISTANCE_TYPE_NEAREST_MASK;	
 		while (TRUE)
 		{
@@ -454,7 +470,7 @@ void main()
 		}
 		printf("\n");
 
-    printf(" AU       ");
+    printf(" au      ");
 		working_distance_mask = DISTANCE_TYPE_NEAREST_MASK;	
 		while (TRUE)
 		{
