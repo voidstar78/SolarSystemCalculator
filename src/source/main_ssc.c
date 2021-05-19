@@ -166,7 +166,9 @@ float planet_distance_data[9*3][3] = {
 #define MAX_INPUT_BUFFER_SIZE 100
 void main()
 {
+#ifndef SSC_TEST_MODE      //< Enable this for quick testing of cases without prompting for any input	
 	char* input_str = (char*)malloc(MAX_INPUT_BUFFER_SIZE);
+#endif
 	
 	float work_distance_ft;
 	unsigned char distance_type;  // 0/N/n Nearest, 1/F/f Farthest, 2/A/a Average
@@ -174,8 +176,8 @@ void main()
 	
 	float distance_percentage;
 	float distance_proportion_ft;
-	unsigned long distance_ft;            // 4294967295
-	unsigned char distance_inch;  // 0 to 12
+	unsigned long distance_ft;    // 32-bit, 0xFFFF FFFF == 4294967295 dec
+	unsigned char distance_inch;  // 0" to 12"
 		
 	unsigned char n;	
 	unsigned char working_distance_mask;
@@ -210,7 +212,7 @@ void main()
 	
 #ifdef SSC_TEST_MODE
 
-	work_distance_ft = DEFAULT_WORK_DISTANCE_FT;  //< Should be DEFAULT_WORK_DISTANCE_FT ?
+	work_distance_ft = MAX_SUPPORTED_WORK_DISTANCE;
 	distance_type = 7;
 	number_of_planets_to_model = 8;
 	
@@ -350,7 +352,9 @@ void main()
 	}	
 #endif
 	
+#ifndef SSC_TEST_MODE
 	free(input_str);
+#endif
 	
 	// ******************************************************************
 	// OUTPUT
@@ -363,7 +367,7 @@ void main()
 	
 	max_planet_distance_data_index = (number_of_planets_to_model-1)*3;	
 	
-  printf("         ");
+  printf("        ");
 	working_distance_mask = DISTANCE_TYPE_NEAREST_MASK;	
 	while (TRUE)
 	{
