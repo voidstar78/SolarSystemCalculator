@@ -1,0 +1,141 @@
+Some test-cases for reference:   (the output units don't really matter, as long as there is consistent ratio between the Nth planet and the first one -- limiting to 3 decimal places we lose some precision, but for the most part it is a consistent 95x ratio from 8th to 1st)
+
+
+(SMALLEST MODEL, scale the whole solar system down to 1/3rd of a millimeter -- yes that's nuts, but maybe I want a tiny-tattoo someday)
+
+first 8 planets scaled to 0.0010 ft...
+         nearest   farthest  average   
+mercury 000.003mm 000.005mm 000.004mm  (should be 0.00312)
+venus   000.007mm 000.007mm 000.007mm 
+earth   000.010mm 000.010mm 000.010mm 
+mars    000.014mm 000.017mm 000.015mm 
+jupiter 000.050mm 000.055mm 000.052mm 
+saturn  000.090mm 000.101mm 000.096mm 
+uranus  000.184mm 000.200mm 000.193mm 
+neptune 000.298mm 000.305mm 000.302mm    (99.3x)
+
+first 8 planets scaled to 0.1000 ft...
+         nearest   farthest  average   
+mercury 000.312mm 000.463mm 000.377mm 
+venus   000.711mm 000.732mm 000.722mm 
+earth   000.980mm 001.012mm 001.002mm    (3.14x)
+mars    001.368mm 001.669mm 001.529mm 
+jupiter 004.954mm 005.471mm 005.213mm 
+saturn  009.036mm 010.103mm 009.575mm 
+uranus  018.417mm 020.033mm 019.279mm 
+neptune 029.834mm 030.480mm 030.157mm    (95.6x)
+
+
+SCALE whole solar system to a nice 1ft ruler:
+
+first 8 planets scaled to 1.0000 ft...
+         nearest   farthest  average   
+mercury 003.123mm 004.631mm 003.770mm 
+venus   007.108mm 007.324mm 007.216mm    (2.27x)
+earth   009.801mm 010.124mm 010.016mm    (3.13x)
+mars    013.678mm 016.694mm 015.294mm 
+jupiter 049.543mm 054.713mm 052.128mm 
+saturn  090.363mm 101.026mm 095.748mm 
+uranus  184.172mm 200.328mm 192.789mm 
+neptune 298.338mm 304.800mm 301.569mm   (95.5x)
+
+
+SCALE solar system to a typical 50' fence:
+
+first 8 planets scaled to 50.0000 ft...
+         nearest   farthest  average   
+mercury 000' 006" 000' 009" 000' 007" 
+venus   001' 001" 001' 002" 001' 002" 
+earth   001' 007" 001' 007" 001' 007"    (3.16x)
+mars    002' 002" 002' 008" 002' 006" 
+jupiter 008' 001" 008' 011" 008' 006" 
+saturn  014' 009" 016' 006" 015' 008" 
+uranus  030' 002" 032' 010" 031' 007" 
+neptune 048' 011" 050' 000" 049' 005"    (97.8x)
+
+
+SCALE solar system to 100ft fence (double previous results):
+
+first 8 planets scaled to 100.0000 ft...
+         nearest   farthest  average   
+mercury 001' 000" 001' 006" 001' 002" 
+venus   002' 003" 002' 004" 002' 004" 
+earth   003' 002" 003' 003" 003' 003" 
+mars    004' 005" 005' 005" 005' 000" 
+jupiter 016' 003" 017' 011" 017' 001" 
+saturn  029' 007" 033' 001" 031' 004" 
+uranus  060' 005" 065' 008" 063' 003" 
+neptune 097' 010" 100' 000" 098' 011"    (97.8x)
+
+
+SCALE solar system to nearly 1/5th of a mile:
+
+first 8 planets scaled to 1000.0000 ft...
+         nearest   farthest  average   
+mercury 010' 002" 015' 002" 012' 004" 
+venus   023' 003" 024' 000" 023' 008" 
+earth   032' 001" 033' 002" 032' 010" 
+mars    044' 010" 054' 009" 050' 002" 
+jupiter 162' 006" 179' 006" 171' 000" 
+saturn  296' 005" 331' 005" 314' 001" 
+uranus  604' 002" 657' 002" 632' 006" 
+neptune 978' 009" 1000' 000" 989' 004"   (94.7x)
+
+
+Testing the solar system scale in miles, just before transition to Earth-Diameter:
+
+first 8 planets scaled to 4999999.0000 ft...
+         nearest   farthest  average   
+mercury 009.704mi 014.389mi 011.712mi 
+venus   022.085mi 022.754mi 022.419mi 
+earth   030.450mi 031.454mi 031.119mi    (3.13)
+mars    042.497mi 051.866mi 047.516mi 
+jupiter 153.924mi 169.986mi 161.955mi 
+saturn  280.745mi 313.872mi 297.476mi 
+uranus  572.197mi 622.390mi 598.967mi 
+neptune 926.892mi 946.970mi 936.931mi   (95.5)
+
+Test of Earth Diameter units:
+
+first 8 planets scaled to 5000000.0000 ft...
+         nearest   farthest  average   
+mercury 000.001ed 000.002ed 000.001ed    (should be ~0.001225)
+venus   000.003ed 000.003ed 000.003ed 
+earth   000.004ed 000.004ed 000.004ed 
+mars    000.005ed 000.007ed 000.006ed 
+jupiter 000.019ed 000.021ed 000.020ed 
+saturn  000.035ed 000.040ed 000.038ed 
+uranus  000.072ed 000.079ed 000.076ed 
+neptune 000.117ed 000.120ed 000.118ed    (95.5x)
+
+
+This test is important since 42,000,000ft is 1x Earth DIAMETER:  (so yes, if you want to model the solar system across the planet, this is how to get started)
+
+first 8 planets scaled to 42000000.0000 ft...
+         nearest   farthest  average   
+mercury 000.010ed 000.015ed 000.012ed   (should be 0.010293)
+venus   000.023ed 000.024ed 000.024ed 
+earth   000.032ed 000.033ed 000.033ed       (3.2x)
+mars    000.045ed 000.055ed 000.050ed 
+jupiter 000.163ed 000.180ed 000.172ed 
+saturn  000.298ed 000.333ed 000.316ed 
+uranus  000.607ed 000.660ed 000.635ed 
+neptune 000.983ed 001.005ed 000.994ed     (95.5x)
+                                ^^^ perfect
+
+
+This test is interesting since the actual max of "400000000000000" can't actually be represented in a FLOAT (below is the resulting nearest equivalent due to the nature of the binary translations):   [also nuts, we can depict a model that is 27x larger than the actual real size of the solar system! even with the artificial 6-digit display output limit.... the nearest star is another 341x further then that, at which point scientific notation becomes rather essential... I just realize at E+38, just showing a full FLOAT goes clear across the entire 40col wide screen {hmm, is that why 40col was the initial standard perhaps!?}]
+
+
+first 8 planets scaled to 400000001507328.0000 ft...
+         nearest   farthest  average   
+mercury 008.351au 012.383au 010.079au 
+venus   019.007au 019.583au 019.295au 
+earth   026.206au 027.070au 026.782au      (3.13x)
+mars    036.574au 044.637au 040.893au 
+jupiter 132.471au 146.294au 139.383au 
+saturn  241.616au 270.126au 256.015au 
+uranus  492.447au 535.644au 515.485au 
+neptune 797.706au 814.985au 806.345au     (95.5x)
+
+
