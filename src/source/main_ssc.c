@@ -87,7 +87,7 @@ Pluto   601'003"  1000'000"  799'006"
 #include <stdlib.h>
 #include <string.h>
 
-#define USE_GETS           //< Enable to use gets(xxx) versus getline(xxx)
+//#define USE_GETS           //< Enable to use gets(xxx) versus getline(xxx)
 #define ABBREVIATED_MODE   //< Enable to skip repeating the reference data
 
 #define TRUE 1
@@ -161,7 +161,7 @@ float planet_distance_data[9*3][3] = {
 #define DISTANCE_TYPE_FARTHEST_MASK 2
 #define DISTANCE_TYPE_AVERAGE_MASK  4
 #define DISTANCE_TYPE_MAX           (DISTANCE_TYPE_NEAREST_MASK | DISTANCE_TYPE_FARTHEST_MASK | DISTANCE_TYPE_AVERAGE_MASK)
-#define MAX_SUPPORTED_WORK_DISTANCE 400000000000000.00f  //< Float can go higher, but the uniform output can't
+#define MAX_SUPPORTED_WORK_DISTANCE 400000000000000.0f  //< Float can go higher, but the uniform output can't
                                     
 #define MAX_INPUT_BUFFER_SIZE 100
 void main()
@@ -190,16 +190,19 @@ void main()
 	// DIAMETER OF SOLAR SYSTEM = 287.46 billion km  (to Sedna)
 	// DISTANCE FROM SUN TO PLUTO = 3.67 billion miles (average)	
 	// DISTANCE FROM SUN TO NEPTUNE = 2.781 billion mi      == 14,683,680,000,000 feet
-	// MIN/MAX OF FLOAT == 1.175494351 E-38	3.402823466 E + 38
+	// MIN/MAX OF FLOAT == 1.175494351 E-38	3.402823466 E+38
 	
-	// 1 AU   =             4.908e+11 ft
-	// 1 AU   =    490,806,662,372.05 ft  (http://convert-to.com/conversion/length/convert-au-to-ft.html)
-	// 10 AU  =  4,908,066,623,720.5  ft
-	// 100 AU = 49,080,666,237,205.0  ft   == 14,959,787,069.1 KM
-	//          14,683,680,000,000    ft  (radius of Neptune)   14683680000000
-	//         400,000,000,000,000.00 ft  MAX SUPPORTED  (27X the radius of Neptune, 400 div 14.6)		
+	// 1 AU   =              4.908e+11 ft
+	// 1 AU   =        490,806,662,372.05 ft  (http://convert-to.com/conversion/length/convert-au-to-ft.html)
+	// 10 AU  =      4,908,066,623,720.5  ft
+	// 100 AU =     49,080,666,237,205.0  ft   == 14,959,787,069.1 KM
+	//              14,683,680,000,000    ft  (radius of Neptune)   14683680000000
+	//             400,000,000,000,000.0  ft  MAX SUPPORTED  (27X the radius of Neptune, 400 div 14.6)		
+	
+	// 1 LY   = 31,039,143,016,731,900    ft
+	//        =      5,878,499,810,000    miles	
 	                       
-	//work_distance_ft = 4000000000.00f;  // threshold of ft ich to AU	
+	//work_distance_ft = 4000000000.0f;  // threshold of ft ich to AU	
 	//work_distance_ft = 5000000.0f;  // threshold of ft ich to EARTH-DIAMETER
 	//work_distance_ft = 10000.0f;  // threshold of ft ich to miles
 	//work_distance_ft = 41804000.0f;  // Diameter of Earth in FT
@@ -415,8 +418,8 @@ void main()
         // There are two reasons for the following output-unit adjustment:                
 				// 1) to fit the result in 32-bit long
 				// 2) to fit the result within the 
-				if (work_distance_ft >= 4000000000.00f)
-				{   // valid until 400000000000000.00f then need another larger unit
+				if (work_distance_ft >= 4000000000.0f)
+				{   // valid until 400000000000000.0f then need another larger unit
 					// SWITCH TO AU   
 					printf("%07.3fau ", distance_proportion_ft / 490806662401.57f);					
 				}
