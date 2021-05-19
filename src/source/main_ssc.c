@@ -160,7 +160,7 @@ float planet_distance_data[9*3][3] = {
 #define DISTANCE_TYPE_FARTHEST_MASK 2
 #define DISTANCE_TYPE_AVERAGE_MASK  4
 #define DISTANCE_TYPE_MAX           (DISTANCE_TYPE_NEAREST_MASK | DISTANCE_TYPE_FARTHEST_MASK | DISTANCE_TYPE_AVERAGE_MASK)
-#define MAX_SUPPORTED_WORK_DISTANCE 4000000000.00f                                    
+#define MAX_SUPPORTED_WORK_DISTANCE 400000000000000.00f  //< Float can go higher, but the uniform output can't
 
 #define MAX_INPUT_BUFFER_SIZE 100
 void main()
@@ -406,7 +406,7 @@ void main()
 					
 				distance_proportion_ft = distance_percentage * work_distance_ft;				
 								                
-				if (work_distance_ft >= MAX_SUPPORTED_WORK_DISTANCE)
+				if (work_distance_ft >= 4000000000.00f)
 				{    // valid until 400000000000000.00f then need another larger unit
 					// SWITCH TO AU
 					printf("%07.3fau ", distance_proportion_ft / 490806662401.57f);					
