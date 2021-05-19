@@ -87,13 +87,13 @@ Pluto   601'003"  1000'000"  799'006"
 #include <stdlib.h>
 #include <string.h>
 
-//#define USE_GETS           //< Enable to use gets(xxx) versus getline(xxx)
-#define ABBREVIATED_MODE   //< Enable to skip repeating the reference data
+// OPTIONS
+#define USE_GETS           //< Enable to use gets(xxx) versus getline(xxx)
+#define SSC_TEST_MODE      //< Enable this for quick testing of cases without prompting for any input
+#define ABBREVIATED_MODE   //< Enable to skip repeating the reference data during output
 
 #define TRUE 1
 #define FALSE 0
-
-//#define SSC_TEST_MODE  //< Enable this for quick testing of cases without prompting for any input
 
 #define NUM_PLANETS 9
 char planet_names[NUM_PLANETS][8] = {
