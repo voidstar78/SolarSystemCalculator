@@ -87,7 +87,8 @@ Pluto   601'003"  1000'000"  799'006"
 #include <stdlib.h>
 #include <string.h>
 
-#define USE_GETS
+#define USE_GETS           //< Enable to use gets(xxx) versus getline(xxx)
+#define ABBREVIATED_MODE   //< Enable to skip repeating the reference data
 
 #define TRUE 1
 #define FALSE 0
@@ -191,16 +192,17 @@ void main()
 	// DISTANCE FROM SUN TO NEPTUNE = 2.781 billion mi      == 14,683,680,000,000 feet
 	// MIN/MAX OF FLOAT == 1.175494351 E-38	3.402823466 E + 38
 	
-	// 1 AU = 4.908e+11 ft
-	// 1 AU = 490,806,662,372.05 ft
-	// 100,000 AU =  49,080,666,237,205.0 ft  (roughly 3.3X the radius of the distance to Neptune)
-	//            =      14,959,787,069.1 KM
+	// 1 AU   =             4.908e+11 ft
+	// 1 AU   =    490,806,662,372.05 ft  (http://convert-to.com/conversion/length/convert-au-to-ft.html)
+	// 10 AU  =  4,908,066,623,720.5  ft
+	// 100 AU = 49,080,666,237,205.0  ft   == 14,959,787,069.1 KM
+	//          14,683,680,000,000    ft  (radius of Neptune)   14683680000000
+	//         400,000,000,000,000.00 ft  MAX SUPPORTED  (27X the radius of Neptune, 400 div 14.6)		
 	                       
-	//work_distance_ft = 4000000000.00f;  // threshold of ft ich to AU
-	//work_distance_ft = 40000000000.0f;  // threshold of ft ich to EARTH-DIAMETER	                     
+	//work_distance_ft = 4000000000.00f;  // threshold of ft ich to AU	
 	//work_distance_ft = 5000000.0f;  // threshold of ft ich to EARTH-DIAMETER
-	//work_distance_ft = 10000;  // threshold of ft ich to miles
-	//work_distance_ft = 41804000;  // Diameter of Earth in FT
+	//work_distance_ft = 10000.0f;  // threshold of ft ich to miles
+	//work_distance_ft = 41804000.0f;  // Diameter of Earth in FT
 	//work_distance_ft = 14683680000000;  // Sun to Neptune in FT (typical)
 	
 #ifdef SSC_TEST_MODE
@@ -351,7 +353,7 @@ void main()
 	// OUTPUT
 	// ******************************************************************
 	
-	printf("first %d planets scaled to %3.2f ft...\n", 
+	printf("first %d planets scaled to %3.4f ft...\n", 
 	  number_of_planets_to_model,
 		work_distance_ft
 	);
@@ -450,6 +452,9 @@ void main()
 		}
 		printf("\n");
 		
+#ifdef ABBREVIATED_MODE		
+    // SKIP the data portions - while it's interesting for reference, those interested can look it up or review the code
+#else
 		printf(" mkm/mmi ");
 		working_distance_mask = DISTANCE_TYPE_NEAREST_MASK;	
 		while (TRUE)
@@ -502,6 +507,7 @@ void main()
 			}						
 		}
 		printf("\n");
+#endif
 	}			
 	
 }
