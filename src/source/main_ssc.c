@@ -4,6 +4,9 @@ Author: STEVE LEWIS - 2021  PROVIDED FOR PUBLIC DOMAIN USE
 
 contact.steve.usa@gmail.com
 
+https://www.atarimagazines.com/compute/issue38/098_1_ALL_ABOUT_THE_COMMODORE_USR_COMMAND.php
+
+
 I am trusting that information at the following article is correct:
 
 https://www.universetoday.com/15462/how-far-are-the-planets-from-the-sun/
@@ -62,39 +65,25 @@ first 8 planets
 scaled to 50 ft
         nearest   farthest  average   
 mercury 000' 006" 000' 009" 000' 007" 
- mkm/mmi 0046/0029 0070/0043 0057/0035 
- au      000.30700 000.46600 000.38700 
 venus   001' 001" 001' 002" 001' 002" 
- mkm/mmi 0107/0066 0109/0068 0108/0067 
- au      000.71800 000.72800 000.72200 
 earth   001' 007" 001' 007" 001' 007" 
- mkm/mmi 0147/0091 0152/0094 0150/0093 
- au      000.98000 001.10000 001.0 
 mars    002' 002" 002' 008" 002' 006" 
- mkm/mmi 0205/0127 0249/0155 0228/0142 
- au      001.38000 001.66000 001.52000 
 jupiter 008' 001" 008' 011" 008' 006" 
- mkm/mmi 0741/0460 0817/0508 0779/0484 
- au      004.95000 005.46000 005.20000 
 saturn  014' 009" 016' 006" 015' 008" 
- mkm/mmi 1350/0839 1510/0938 1430/0889 
- au      009.50000 010.12000 009.58000 
 uranus  030' 002" 032' 010" 031' 007" 
- mkm/mmi 2750/1710 3000/1860 2880/1790 
- au      018.40000 020.10000 019.20000 
 neptune 048' 011" 050' 000" 049' 005" 
- mkm/mmi 4450/2770 4550/2830 4500/2800 
- au      029.80000 030.40000 030.10000 					 
 
 */
-
-#include <stdio.h>             //< printf, scanf
-#include <string.h>            //< strlen
 
 // PROGRAM COMPILE OPTIONS
 //#define USE_GETS           //< Enable to use gets(xxx) versus fgets(xxx)
 //#define SSC_TEST_MODE      //< Enable this for quick testing of cases without prompting for any input
 #define ABBREVIATED_MODE   //< Enable to skip repeating the reference data during output
+#define LIMITED_SCALE      //< Limit max scale to approximately ~2^32 (unsigned 32-bit); useful if no sscanf to convert float to string, or don't want to deal with rough precision with massive numbers that can't be perfectly represented in a float-type
+
+#include <stdio.h>             //< printf, scanf
+#include <string.h>            //< strlen
+#include <stdlib.h>            //< strtoul
 
 #define TRUE 1
 
@@ -119,7 +108,7 @@ char planet_names[NUM_PLANETS][8] = {
 #define INDEX_MIL_MI   1  // Millions of Miles
 #define INDEX_AU       2  // Astronomical Unit  (Sun to Earth distance)
 
-float planet_distance_data[9*3][3] = {
+float planet_distance_data[9*3][3] = {   //< 9 planets, 3 rows of data per planet, 3 columns of data per row
 // milKM     milMI     AU
 // MERCURY
 	{46.0f,    29.0f,    0.307f},  // NEAREST
@@ -169,22 +158,41 @@ float planet_distance_data[9*3][3] = {
 #define DISTANCE_TYPE_AVERAGE_MASK  4U
 #define DISTANCE_TYPE_MAX           (DISTANCE_TYPE_NEAREST_MASK | DISTANCE_TYPE_FARTHEST_MASK | DISTANCE_TYPE_AVERAGE_MASK)
 #define MIN_SUPPORTED_WORK_DISTANCE 0.001f
-#define MAX_SUPPORTED_WORK_DISTANCE 400000000000000.0f  //< Float can go higher, but the uniform output can't                                                                        
+
+#ifdef LIMITED_SCALE	
+	#define MAX_SUPPORTED_WORK_DISTANCE 4000000000.0f  //< Float can go higher, but 32-bit limited input can't
+#else
+  #define MAX_SUPPORTED_WORK_DISTANCE 400000000000000.0f  //< Float can go higher, but the uniform output can't                                                                        
+#endif	
+	
 #define ROUNDOFF                    0.5f
+#define THREE_DIGIT_DECIMAL         1000.0f 
+#define SIX_DIGIT_DECIMAL           1000000.0f
 
-#define MAX_INPUT_BUFFER_SIZE 20
+#define MAX_INPUT_BUFFER_SIZE 40  
+// The above buffer supports keying crazy input like:
+// "123456789.987654321" 
+// "3.141592653589793238462643383279502884"
+   // 10000000000000000000
+	 // 100000000
+// "399999999999999.9998887776665554443332"
+// "399999900000000.9988776655"
+//  1234567890123456789012345678901234567890
+// Supporting up to "1-screen-width" worth of digits plus decimal.
 
-#define INPUT_ENTER  0x0A
-#define INPUT_SPACE  0x20
+#define INPUT_ENTER    '\n' // 0x0A / 10  (newline is 13, 0x0C)
+#define INPUT_SPACE    ' '  // 0x20 / 32
+#define INPUT_DECIMAL  '.'
 
 #ifndef SSC_TEST_MODE
 static char input_str[MAX_INPUT_BUFFER_SIZE];                                   
 static char distance_str[MAX_INPUT_BUFFER_SIZE];                                   
 #endif
 
+#ifndef ABBREVIATED_MODE		
 // This is a special function just to handle "padding" of the FRAC portion of the AU values.
-// These FRAC portions are normally 1, 2, or 3 digits.  Since we're showing it as an
-// integer past the decimal, we pad by multiplying the value by 10 until it has 5 digits.
+// These FRAC portions are normally 1, 2, or 3 digits (as the AU data as given).  Since we're 
+// showing it as an integer past the decimal, we pad by multiplying the value by 10 until it has 5 digits.
 // NOTE: Only place this function falls apart is when the FRAC value is 0.  And this only
 // happens for Earth, where the average AU distance for Earth is by definition exactly 1.0
 // A 0-value can't be padded, we need at least 1 non-zero digit to multiply by 10.
@@ -200,7 +208,7 @@ unsigned int pad_to5(unsigned int value)
 				value *= 10;				
 			}
 		}
-		/* NOT USED - but this concept could be used to "reduce" an integer being used past a decimal to less than N-digits
+		/* NOT USED - but this concept could be used to "reduce" an integer being used past a decimal to less than N-digits (keep this around in case the AU constants get adjusted to more than 3 digits past decimal)
 		else
 		{
 			while (value > multiplier) 
@@ -213,18 +221,19 @@ unsigned int pad_to5(unsigned int value)
 	// else - no practical way to pad a 0, leave it be...
 	return value;
 }
+#endif
 
 void main()
 {
 
 	float work_distance_ft;
-	unsigned char distance_type;  // 0/N/n Nearest, 1/F/f Farthest, 2/A/a Average
+	unsigned char distance_type;  // 1/N/n Nearest, 2/F/f Farthest, 4/A/a Average
 	unsigned char number_of_planets_to_model;
 	
 	float distance_percentage;
 	float distance_proportion_ft;
 	
-	// unsigned int 16-bit for cc65 6502 platform  0x     FFFF == 65535
+	// unsigned int 16-bit for cc65 6502 platform  0x     FFFF == 65535 dec
 	// unsigned int 32-bit for       x86 platform  0xFFFF FFFF == 4294967295 dec
 	unsigned int distance_INT;    
 	unsigned int distance_FRAC;  
@@ -236,7 +245,13 @@ void main()
 	unsigned char temp_index;
 	unsigned char i;	
 	
+	char c;
+	char* p;
+	float v;
+	float d;
+	
 	// DIAMETER OF EARTH = 41.804 million′ = 41804000 ft
+	//                                     4294967296 (max unsigned 32-bit, in ft this is ~100x larger than diameter of the Earth)
 	// DIAMETER OF SOLAR SYSTEM = 287.46 billion km  (to Sedna)
 	// DISTANCE FROM SUN TO PLUTO = 3.67 billion miles (average)	
 	// DISTANCE FROM SUN TO NEPTUNE = 2.781 billion mi      == 14,683,680,000,000 feet
@@ -271,26 +286,67 @@ start_over:
 	distance_str[0] = '\0';  //< Make the distance_str BLANK by default
 	while (TRUE)
 	{
-	  printf("work distance (ft) [50]:\n");
+	  printf("work distance (ft) [50]:\n");  //< The \n here is intentional, in case they need to type a very large number (or one with a lot of post-decimal digits) -- e.g. "123456789.987654321" the screen is only 40 columns wide (fitting the question and this number on same row isn't clean)
 #ifdef USE_GETS
 		gets(distance_str);
 #else
 		fgets(distance_str, MAX_INPUT_BUFFER_SIZE, stdin);
 #endif
-		if (distance_str[0] == INPUT_ENTER) distance_str[0] = '\0';  // ENTER
-		if (distance_str[0] == INPUT_SPACE) distance_str[0] = '\0';  // SPACE
+		if (distance_str[0] == INPUT_ENTER) distance_str[0] = '\0';       // ENTER (if they press ENTER, force use of default)
+		else if (distance_str[0] == INPUT_SPACE) distance_str[0] = '\0';  // SPACE (if they started with pressing space, force use of default)
 		n = strlen(distance_str);
 		if (n == 0)
 		{
 			printf("defaulted\n");
-			work_distance_ft = DEFAULT_WORK_DISTANCE_FT;
-			strcpy(distance_str, "50");
+			strcpy(distance_str, "50");  //< This is done just so that the default value is output below
+			//work_distance_ft = DEFAULT_WORK_DISTANCE_FT;			
 		}
 		else
-		{			
-			distance_str[n-1] = '\0';  // remove the CR/ENTER, since we re-use this string during output later
-			sscanf(distance_str, "%f", &work_distance_ft);
+		{
+			
+			//distance_str[n-1] = '\0';  //< Remove the CR/ENTER, since we re-use this string during output below  
+			// The code below is a more robust than the above, in case they did silly things like typing SPACE after the digits, etc...
+			while (TRUE)
+			{
+				--n;  // We know they at least pressed RETURN - search for the last valid digit or decimal that was entered
+				if (
+				  ((distance_str[n] >= '0') && (distance_str[n] <= '9'))
+					|| (distance_str[n] == INPUT_DECIMAL)  // decimal
+			  )
+				{
+					distance_str[n+1] = '\0';
+					break;
+				}				
+			}
 		}
+			
+		work_distance_ft = (float)strtoul(distance_str, &p, 10);
+		v = 0.0f;
+		d = 1.0f;				
+		if ((*p) == INPUT_DECIMAL)  //< user typed a decimal, apply that portion as the FRACtional
+		{
+			c = *(++p);
+			while ((c >= '0') && (c <= '9'))
+			{
+				v = (v * 10.0f) + (c - '0');  // build up as a "big number"
+				d *= 10.0f;                   // prepare denominator to scale it back to a "small number"
+				if (d >= 100000000.0f)
+				{
+					break;  // any more than this, and they're starting to lose precision anyway
+				}
+				c = *(++p);              // move to next input character; should eventually encounter the \0 null
+			}
+		}
+#ifdef LIMITED_SCALE
+	  printf("%lu\n+(%lu/%lu)\n", 
+			(unsigned long)work_distance_ft, 
+			(unsigned long)v, 
+			(unsigned long)d
+		);
+#else
+		printf("%.0f\n+(%.0f/%.0f)\n", work_distance_ft, v, d);
+#endif		
+		work_distance_ft += (v / d);  //< 0, no impact, if no decimal was specified
 		
 		// Now do the range checking...
 		if (
@@ -298,7 +354,11 @@ start_over:
 			|| (work_distance_ft > MAX_SUPPORTED_WORK_DISTANCE)  //< While FLOAT can support larger, our table output can't.
 		)
 		{
-			printf("invalid [min 0.001, max 4e14]\n");
+#ifdef LIMITED_SCALE
+      printf("invalid [min 0.001, max 4e9]\n");			
+#else
+	    printf("invalid [min 0.001, max 4e14]\n");
+#endif
 		}
 		else
 		{
@@ -316,8 +376,8 @@ start_over:
 #else
 		fgets(input_str, MAX_INPUT_BUFFER_SIZE, stdin);
 #endif
-		if (input_str[0] == INPUT_ENTER) input_str[0] = '\0';  // ENTER
-		if (input_str[0] == INPUT_SPACE) input_str[0] = '\0';  // SPACE
+		if (input_str[0] == INPUT_ENTER) input_str[0] = '\0';       // ENTER (if they press ENTER, force use of default)
+		else if (input_str[0] == INPUT_SPACE) input_str[0] = '\0';  // SPACE (if they started with pressing space, force use of default)
 		n = strlen(input_str);
 		if (n == 0)
 		{
@@ -369,8 +429,8 @@ start_over:
 #else
 		fgets(input_str, MAX_INPUT_BUFFER_SIZE, stdin);
 #endif
-		if (input_str[0] == INPUT_ENTER) input_str[0] = '\0';  // ENTER
-		if (input_str[0] == INPUT_SPACE) input_str[0] = '\0';  // SPACE
+		if (input_str[0] == INPUT_ENTER) input_str[0] = '\0';       // ENTER (if they press ENTER, force use of default)
+		else if (input_str[0] == INPUT_SPACE) input_str[0] = '\0';  // SPACE (if they started with pressing space, force use of default)
 		n = strlen(input_str);
 		if (n == 0)
 		{
@@ -404,12 +464,20 @@ start_over:
 
 #ifndef SSC_TEST_MODE	        
 	printf("first %u planets\n", number_of_planets_to_model);
-	printf("scaled to %s ft\n", distance_str);
+	
+  #ifdef LIMITED_SCALE
+	  printf("scaled to %lu.%lu ft\n", (unsigned long)work_distance_ft, (unsigned long)v);
+  #else
+  	printf("scaled to %f ft\n", (float)work_distance_ft);
+  #endif
 #endif	
-	/* alternative:
-	if (work_distance_ft > UINT_MAX)
+	/* alternative:  
+	we avoid the need for the following by using %s to just echo what the user requested in the first place
+	kind of cheap, since it won't reveal any internal because-we're-binary round off issues
+	(i.e. certain inputs can't be perfectly represented in a float)
+	if (work_distance_ft > (float)UINT_MAX)  
 	{
-		printf("REALLY_FAR...\n");
+		printf("REALLY_FAR...\n");  //< Don't bother trying to convert it to a string, good enough to acknowledge that it's "really big"
 	}
 	else
 	{
@@ -422,15 +490,16 @@ start_over:
 	}
 	*/
 	
-	max_planet_distance_data_index = (number_of_planets_to_model-1)*3;	
+	max_planet_distance_data_index = (number_of_planets_to_model-1)*3;	  //< "*3" is because there is 3 rows of data per planet (-1 since the data-array is 0-index based)
 	
-  printf("        ");
+	// -- OUTPUT HEADER -----------------------
+  printf("        ");  //< 8-spaces
 	working_distance_mask = DISTANCE_TYPE_NEAREST_MASK;	
 	while (TRUE)
 	{
 		job_to_do = (distance_type & working_distance_mask);
 		
-		if (job_to_do > 0)
+		if (job_to_do > 0)  //< Only output the chosen context (NEAREST, FARTHEST, or AVERAGE; any combination is permitted)
 		{
 			if (job_to_do == DISTANCE_TYPE_NEAREST_MASK) temp_index = INDEX_NEAREST;
 			else if (job_to_do == DISTANCE_TYPE_FARTHEST_MASK) temp_index = INDEX_FARTHEST;
@@ -453,24 +522,25 @@ start_over:
 		}										
 	}
 	printf("\n");
+	// -------------------------------------------
 		
   for (i = 0; i < number_of_planets_to_model; ++i)
 	{
-		printf("%-8s", planet_names[i]);
+		printf("%-8s", planet_names[i]);  //< Lucky all the planet names are less than 8 characters!
 		
 		working_distance_mask = DISTANCE_TYPE_FIRST;	
 		while (TRUE)
 		{
 			job_to_do = (distance_type & working_distance_mask);
 			
-			if (job_to_do > 0)
+			if (job_to_do > 0)  //< Only output the chosen context (NEAREST, FARTHEST, or AVERAGE; any combination is permitted)
 			{
 				if (job_to_do == DISTANCE_TYPE_NEAREST_MASK) temp_index = INDEX_NEAREST;
 				else if (job_to_do == DISTANCE_TYPE_FARTHEST_MASK) temp_index = INDEX_FARTHEST;
 				else if (job_to_do == DISTANCE_TYPE_AVERAGE_MASK) temp_index = INDEX_AVERAGE;			
 				
 				distance_percentage = 
-					planet_distance_data[(i*3)+temp_index][INDEX_MIL_MI] 
+					planet_distance_data[(i*3)+temp_index][INDEX_MIL_MI]    //< "*3" is because there are 3 rows of data per planet, so we need to offset accordingly
 						/
 					planet_distance_data[max_planet_distance_data_index+INDEX_FARTHEST][INDEX_MIL_MI];
 					
@@ -484,29 +554,32 @@ start_over:
 				// per INT and FRAC portion).  This approach avoids more time consuming
 				// FLOAT to STRING conversion, but care must be taken in choosing the
 				// unit adjustment thresholds.
-								
+				
+#ifndef LIMITED_SCALE
 				if (work_distance_ft >= 40000000000.0f)
-				{   // valid until  400000000000000.0f then need another larger unit
+				{   // valid until  400000000000000.0f then need another larger unit (to keep integer portion of output to "999")
 			
 					// SWITCH TO UNITS OF AU					
 					distance_proportion_ft /= 490806662401.57f;
 					distance_INT = (unsigned int)distance_proportion_ft;
-				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT) * 1000.0f) + ROUNDOFF);
+				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT) * THREE_DIGIT_DECIMAL) + ROUNDOFF);
 										
 					printf("%03u.%03uau ", distance_INT, distance_FRAC);										
           //        ^    ^
-          //        |    +-- this is because we scaled to 3-digits (*1000.0) earlier					
-					//        +------- this is to pad the INT portion to 3-digit, and the value should not exceed 3-digit "999" 
+          //        |    +-- this is because we scaled to 3-digits (*1000.0) earlier  (if change to 1, 2, 4 digit, this will need to change also)				
+					//        +------- this is to pad the INT portion to 3-digit, and the value should not exceed 3-digit "999" (moderated by the chosen scale of the output units) 
 					
 					//was:
 					//printf("%07.3fau ", distance_proportion_ft / 490806662401.57f);					
-				}
-				else if (work_distance_ft >= 5000000.0f) 
+				}                         
+				else 
+#endif
+				if (work_distance_ft >= 5000000.0f) 
 				{
 					// SWITCH TO UNITS OF EARTH-DIAMETER
 					distance_proportion_ft /= 41804000.0f;
 					distance_INT = (unsigned int)distance_proportion_ft;
-				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT) * 1000.0f) + ROUNDOFF);
+				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT) * THREE_DIGIT_DECIMAL) + ROUNDOFF);
 					
 					printf("%03u.%03ued ", distance_INT, distance_FRAC);															
 					
@@ -518,19 +591,19 @@ start_over:
 					// SWITCH TO MILES
 					distance_proportion_ft /= 5280.0f;
 					distance_INT = (unsigned int)distance_proportion_ft;
-				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT) * 1000.0f) + ROUNDOFF);
+				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT) * THREE_DIGIT_DECIMAL) + ROUNDOFF);
 					
 					printf("%03u.%03umi ", distance_INT, distance_FRAC);															
 					
 					//was:
 				  //printf("%07.3fmi ", distance_proportion_ft / 5280.0);
 				}
-				else if (work_distance_ft < 3.0f)
+				else if (work_distance_ft < 4.0f)
 				{
-					// SWITCH TO mm
+					// SWITCH TO mm ("small model" mode)
 					distance_proportion_ft *= 304.8f;
 					distance_INT = (unsigned int)distance_proportion_ft;
-				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT) * 1000.0f) + ROUNDOFF);
+				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT) * THREE_DIGIT_DECIMAL) + ROUNDOFF);
 					
 					printf("%03u.%03umm ", distance_INT, distance_FRAC);															
 					
@@ -541,10 +614,10 @@ start_over:
 				{			
           // output default of FEET and INCHES			
 				  distance_INT = (unsigned int)distance_proportion_ft;
-				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT)) * 12.0f);
+				  distance_FRAC = (unsigned int)(((distance_proportion_ft - (float)distance_INT)) * 12.0f);  //< 12 inches per 1 foot
 					if (distance_FRAC == 12)  // if the FRAC happens to round to 12inch, increase FT and zero out inch
 					{
-						++distance_INT;  //< Trying to avoid rolling this to 4-digits
+						++distance_INT;  //< Trying to avoid allowing this to reach 4-digits (by managing the threshold where we change the output units)
 						distance_FRAC = 0;
 					}
 				  printf("%03u' %03u\" ", distance_INT, distance_FRAC);
@@ -568,19 +641,18 @@ start_over:
 		{
 			job_to_do = (distance_type & working_distance_mask);
 			
-			if (job_to_do > 0)
+			if (job_to_do > 0)  //< Only output the chosen context (NEAREST, FARTHEST, or AVERAGE; any combination is permitted)
 			{
 				if (job_to_do == DISTANCE_TYPE_NEAREST_MASK) temp_index = INDEX_NEAREST;
 				else if (job_to_do == DISTANCE_TYPE_FARTHEST_MASK) temp_index = INDEX_FARTHEST;
 				else if (job_to_do == DISTANCE_TYPE_AVERAGE_MASK) temp_index = INDEX_AVERAGE;
 		
-				job_to_do = (i*3)+temp_index;
+				job_to_do = (i*3)+temp_index;  //< "*3" here is because there is 3 rows of data per planet, need to index accordingly
 				
-				distance_INT = (unsigned int)planet_distance_data[job_to_do][INDEX_MIL_KM];				
-				printf("%04u/", distance_INT);
-				
-				distance_INT = (unsigned int)planet_distance_data[job_to_do][INDEX_MIL_MI];				
-				printf("%04u ", distance_INT);
+				printf("%04u/%04u ", 
+				  (unsigned int)planet_distance_data[job_to_do][INDEX_MIL_KM], 
+					(unsigned int)planet_distance_data[job_to_do][INDEX_MIL_MI]
+			  );
 
 				//was:
 				//printf("%04.0f/%04.0f ", 
@@ -603,19 +675,20 @@ start_over:
 		{
 			job_to_do = (distance_type & working_distance_mask);
 			
-			if (job_to_do) 
+			if (job_to_do > 0)  //< Only output the chosen context (NEAREST, FARTHEST, or AVERAGE; any combination is permitted)
 			{
 				if (job_to_do == DISTANCE_TYPE_NEAREST_MASK) temp_index = INDEX_NEAREST;
 				else if (job_to_do == DISTANCE_TYPE_FARTHEST_MASK) temp_index = INDEX_FARTHEST;
 				else if (job_to_do == DISTANCE_TYPE_AVERAGE_MASK) temp_index = INDEX_AVERAGE;
 		
-				job_to_do = (i*3)+temp_index;
+				job_to_do = (i*3)+temp_index;  //< "*3" is because there is 3 rows of data per planet, need to index accordingly
 				
-				distance_INT = (unsigned int)planet_distance_data[job_to_do][INDEX_AU];
-				distance_FRAC = pad_to5(
-				  (unsigned int)(((planet_distance_data[job_to_do][INDEX_AU] - (float)distance_INT) * 1000.0f) + ROUNDOFF)
-				);				
-				printf("%03u.%u ", distance_INT, distance_FRAC);
+				printf("%03u.%u ",  //< The %u is padded to 5 characters per pad_to5 call (so this output is 10 characters total, except in the "0" case)
+				  (unsigned int)planet_distance_data[job_to_do][INDEX_AU], 
+					pad_to5(
+				    (unsigned int)(((planet_distance_data[job_to_do][INDEX_AU] - (float)distance_INT) * THREE_DIGIT_DECIMAL) + ROUNDOFF)
+				  )  
+				);  
 				
 				//was:
 				//printf("%09.3f ", 
