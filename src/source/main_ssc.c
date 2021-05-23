@@ -324,15 +324,15 @@ start_over:
 		v = 0.0f;
 		d = 1.0f;				
 		if ((*p) == INPUT_DECIMAL)  //< user typed a decimal, apply that portion as the FRACtional
-		{
-			c = *(++p);
+		{			
+			c = *(++p);  // Thanks to vbc for showing this approach (as an alternative to using sscanf)
 			while ((c >= '0') && (c <= '9'))
 			{
 				v = (v * 10.0f) + (c - '0');  // build up as a "big number"
 				d *= 10.0f;                   // prepare denominator to scale it back to a "small number"
-				if (d >= 100000000.0f)
+				if (d >= 1000000000.0f)
 				{
-					break;  // any more than this, and they're starting to lose precision anyway
+					break;  // any more than this, and they're starting to lose float-precision anyway
 				}
 				c = *(++p);              // move to next input character; should eventually encounter the \0 null
 			}
